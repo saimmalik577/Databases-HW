@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Category</title>
+</head>
+<body>
+
+<h1>Create a New Category</h1>
+
+<!-- Form for category creation -->
+<form action="http://127.0.0.1:5000/subcategory" method="POST" enctype="multipart/form-data">
+    <label for="name">Category Name:</label>
+    <input type="text" id="name" name="name" required>
+    
+    <label for="file">Category Photo (PNG or JPEG):</label>
+    <input type="file" id="file" name="file" accept=".png, .jpeg, .jpg" required>
+
+    <label for="category">Select a Category:</label>
+    <select id="category" name="categoryId" required>
+        <option value="" disabled selected>Select a category</option>
+        <!-- Options will be populated dynamically here -->
+    </select>
+    
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    // Function to populate category dropdown
+    async function populateCategories() {
+        try {
+            // Fetch categories from the server
+            const response = await fetch('http://127.0.0.1:5000/categories');
+            const categories = await response.json();
+
+            // Get the select element
+            const categorySelect = document.getElementById('category');
+
+            // Loop through the categories and create options
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                categorySelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    }
+
+    // Call the function when the page loads
+    window.onload = populateCategories;
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Creation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            width: 50%;
+            margin: 0 auto;
+        }
+        .form-container h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #5c6bc0;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        // Function to fetch categories and populate the category select element
+        async function fetchCategories() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/categories'); // Assuming this endpoint returns a list of categories
+                const categories = await response.json();
+                
+                const categorySelect = document.getElementById('category');
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        }
+
+        // Function to fetch subcategories based on selected category
+        async function fetchSubcategories(categoryId) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/subcategories/category/${categoryId}`); // Adjusted endpoint for fetching subcategories by category ID
+                const subcategories = await response.json();
+                
+                const subcategorySelect = document.getElementById('subcategory');
+                subcategorySelect.innerHTML = ''; // Clear existing options
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                defaultOption.textContent = 'Select';
+                subcategorySelect.appendChild(defaultOption);
+
+                // Loop through subcategories and add them to the select element
+                subcategories.forEach(subcategory => {
+                    const option = document.createElement('option');
+                    option.value = subcategory.id;
+                    option.textContent = subcategory.name;
+                    subcategorySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching subcategories:', error);
+            }
+        }
+
+        // Function to collect product properties into JSON format
+        function collectProperties() {
+            const properties = [];
+            for (let i = 1; i <= 5; i++) {
+                const key = document.getElementById(`key${i}`).value.trim();  // Get key input
+                const value = document.getElementById(`property${i}`).value.trim();  // Get value input
+                if (key && value) {
+                    properties.push({
+                        key: key,  // Use key from input
+                        value: value
+                    });
+                }
+            }
+            // Set the hidden productProperties field value to the JSON string
+            document.getElementById('productProperties').value = JSON.stringify(properties);
+        }
+
+        // Fetch categories on page load
+        window.onload = function() {
+            fetchCategories();
+            document.getElementById('category').addEventListener('change', function() {
+                fetchSubcategories(this.value);
+            });
+        };
+    </script>
+</head>
+<body>
+
+<div class="form-container">
+    <h1>Product Creation</h1>
+    <form action="http://127.0.0.1:5000/products" method="POST" enctype="multipart/form-data" onsubmit="collectProperties()">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="picture">Picture (PNG or JPEG):</label>
+        <input type="file" id="picture" name="file" accept=".png, .jpeg, .jpg" required>
+
+        <label for="overview">Overview:</label>
+        <textarea id="overview" name="description" rows="4"></textarea>
+
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" required>
+
+        <label for="kaspi_link">Link to the product:</label>
+        <input type="url" id="kaspi_link" name="kaspi" required>
+
+        <label for="category">Category:</label>
+        <select id="category" name="categoryId" required>
+            <option value="" disabled selected>Select</option>
+            <!-- Categories will be populated dynamically -->
+        </select>
+
+        <label for="subcategory">Subcategory:</label>
+        <select id="subcategory" name="subCategoryId">
+            <option value="" disabled selected>Select</option>
+            <!-- Subcategories will be populated dynamically based on the selected category -->
+        </select>
+
+        <label for="key1">Property Key 1:</label>
+        <input type="text" id="key1">
+
+        <label for="property1">Property Value 1:</label>
+        <input type="text" id="property1">
+
+        <label for="key2">Property Key 2:</label>
+        <input type="text" id="key2">
+
+        <label for="property2">Property Value 2:</label>
+        <input type="text" id="property2">
+
+        <label for="key3">Property Key 3:</label>
+        <input type="text" id="key3">
+
+        <label for="property3">Property Value 3:</label>
+        <input type="text" id="property3">
+
+        <label for="key4">Property Key 4:</label>
+        <input type="text" id="key4">
+
+        <label for="property4">Property Value 4:</label>
+        <input type="text" id="property4">
+
+        <label for="key5">Property Key 5:</label>
+        <input type="text" id="key5">
+
+        <label for="property5">Property Value 5:</label>
+        <input type="text" id="property5">
+
+        <!-- Hidden field to hold JSON of product properties -->
+        <input type="hidden" id="productProperties" name="productProperties">
+
+        <button type="submit">Create</button>
+    </form>
+</div>
+
+</body>
+</html>
